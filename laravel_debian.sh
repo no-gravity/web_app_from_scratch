@@ -13,26 +13,36 @@
 #
 
 # Update packages
-apt update -y && apt upgrade -y
+sudo apt update -y && apt upgrade -y
 
-apt install wget
+sudo apt install wget
 
-apt install lsb-release
+sudo apt install lsb-release
 
-apt install gnupg
+sudo apt install gnupg
 
-wget https://dev.mysql.com/get/mysql-apt-config_0.8.20-1_all.deb
+sudo wget https://dev.mysql.com/get/mysql-apt-config_0.8.20-1_all.deb
 
-dpkg -i mysql-apt-config*
+sudo dpkg -i mysql-apt-config*
 
-apt-get update
+sudo apt-get update
+
+clear
 
 # Prompt the user for an app name
-echo Please provide a name for your application:
+echo "============================================="
+echo Please provide a name for your application.
+echo This will be used to create your database,
+echo user account, and will also name the project.
+echo "============================================="
+
+echo "============================"
+echo Type application name below:
+echo "============================"
 read APP_NAME
 
 # Install mysql-server package
-apt install mysql-server
+sudo apt install mysql-server
 
 # Restart the service
 # This sometimes causes the install script
@@ -41,7 +51,7 @@ apt install mysql-server
 
 # Run the MySQL installation script
 # IMPORTANT - Remember to save the root password somewhere
-mysql_secure_installation
+sudo mysql_secure_installation
 
 # Create our application's DB
 mysql -u root -p -e "CREATE DATABASE $APP_NAME;"
@@ -60,7 +70,7 @@ mysql -u root -p -e "FLUSH PRIVILEGES;"
 echo Flushed privileges
 
 # Install base Laravel with mysql
-curl -s "https://laravel.build/"$APP_NAME"?with=mysql" | bash
+curl -s "https://laravel.build/"$APP_NAME"?with=mysql" | sudo -u $USER bash
 
 # Change the DB_USERNAME in the .env (defaults to sail)
 sed -i "s/\(DB_USERNAME *= *\).*/\1$APP_NAME/" $APP_NAME/.env
