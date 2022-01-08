@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # ========================
 # From Zero to Laravel App
 # ========================
@@ -50,7 +50,7 @@ sudo mysql -e "CREATE USER '$APP_NAME'@'localhost' IDENTIFIED BY 'password';"
 echo Created database user
 
 # Grant the DB user permissions on the DB
-sudo mysql -e "GRANT ALL PRIVILEGES ON $APP_NAME.* TO '$APP_NAME'@'localhost' WITH GRANT OPTION;"
+sudo mysql -e "GRANT ALL PRIVILEGES ON $APP_NAME.* TO '$APP_NAME'@'%' WITH GRANT OPTION;"
 echo Granted privileges to user
 
 # Flush privileges
