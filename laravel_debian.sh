@@ -58,7 +58,7 @@ mysql -u root -p -e "CREATE DATABASE $APP_NAME;"
 echo Created database
 
 # Create the application's DB user
-mysql -u root -p -e "CREATE USER '$APP_NAME'@'localhost' IDENTIFIED BY 'password';"
+mysql -u root -p -e "CREATE USER '$APP_NAME'@'%' IDENTIFIED BY 'password';"
 echo Created database user
 
 # Grant the DB user permissions on the DB
