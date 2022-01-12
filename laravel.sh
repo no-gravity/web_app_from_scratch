@@ -15,6 +15,14 @@
 # Update packages
 sudo apt update -y && sudo apt upgrade -y
 
+MYSQL_INSTALLED=false
+
+if [ -f /etc/init.d/mysql* ]; then
+    MYSQL_INSTALLED=true
+else
+    MYSQL_INSTALLED=false
+fi
+
 clear
 
 # Prompt the user for an app name
@@ -37,9 +45,12 @@ sudo apt-get install mysql-server
 # to bug if we don't restart the service beforehand
 sudo /etc/init.d/mysql restart
 
-# Run the MySQL installation script
-# IMPORTANT - Remember to save the root password somewhere
-sudo mysql_secure_installation
+if [ "$MYSQL_INSTALLED" == "false" ]
+then
+	# Run the MySQL installation script
+	# IMPORTANT - Remember to save the root password somewhere
+	sudo mysql_secure_installation
+fi
 
 # Create our application's DB
 sudo mysql -e "CREATE DATABASE $APP_NAME;"
