@@ -31,6 +31,15 @@ apt update -y && apt upgrade -y
 apt install -y unzip git php php-xml composer
 cd /var/www
 composer create-project symfony/website-skeleton mysite --no-interaction
+chown -R www-data:www-data mysite
+cd mysite
+
+# apache-pack will write the public/.htaccess file that
+# routes all requests to public/index.php.
+# Unfortunately, this will ask a question and you will
+# have to manually type "y" and enter. I have not yet
+# found a nice way to automate this.
+composer require symfony/apache-pack
 
 # ====================
 # Let's install Apache
@@ -39,6 +48,9 @@ composer create-project symfony/website-skeleton mysite --no-interaction
 apt install -y apache2 libapache2-mod-php
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
 ServerName mysite.local
+<Directory /var/www/mysite/public>
+    AllowOverride All
+</Directory>
 <VirtualHost *:80>
     DocumentRoot /var/www/mysite/public
 </VirtualHost>
@@ -53,7 +65,6 @@ service apache2 start
 # Create a controller and a template
 # ==================================
 
-cd mysite
 bin/console make:controller HomepageController
 
 # modify the controller to respond to GET / instead of GET /homepage
