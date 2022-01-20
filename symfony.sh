@@ -28,7 +28,7 @@ apt update -y && apt upgrade -y
 # Let's install Symfony
 # =====================
 
-apt install -y unzip git php php-xml composer
+apt install -y unzip git php php-xml php-curl composer
 cd /var/www
 composer create-project symfony/website-skeleton mysite --no-interaction
 chown -R www-data:www-data mysite
