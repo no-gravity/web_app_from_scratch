@@ -42,7 +42,7 @@ mv composer.phar /usr/local/bin/composer
 
 # Create a project from the website-skeleton template
 cd /var/www
-composer create-project symfony/website-skeleton my-project --no-interaction
+composer create-project symfony/website-skeleton mysite --no-interaction
 
 
 
@@ -52,9 +52,9 @@ composer create-project symfony/website-skeleton my-project --no-interaction
 
 apt install -y apache2 libapache2-mod-php
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
-ServerName my-project.local
+ServerName mysite.local
 <VirtualHost *:80>
-    DocumentRoot /var/www/my-project/public
+    DocumentRoot /var/www/mysite/public
 </VirtualHost>
 EOF
 service apache2 start
@@ -67,7 +67,7 @@ service apache2 start
 # Create a controller and a template
 # ==================================
 
-cd my-project
+cd mysite
 bin/console make:controller HomepageController
 
 # modify the controller to respond to GET / instead of GET /homepage
