@@ -57,24 +57,69 @@ ServerName mysite.local
 EOF
 service apache2 start
 
-# You should now be able to see a dummy website under http://localhost/
+# Yay, we have a working Symfony instance!
+# You can see it at 127.0.0.1
+read -p 'Symfony is running! Hit enter to continue.'
 
+# ===================
+# Let's use templates
+# ===================
 
+cat << 'EOF' > templates/index.html.twig
+<h1>Hello World</h1>
+EOF
 
-# ==================================
-# Create a controller and a template
-# ==================================
+cat << 'EOF' > src/Controller/HomepageController.php
+<?php
 
-bin/console make:controller HomepageController
+namespace App\Controller;
 
-# modify the controller to respond to GET / instead of GET /homepage
-sed 's:/homepage:/:' -i src/Controller/HomepageController.php 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-# The contents of http://localhost/ are served from
-# - the controller template templates/homepage/index.html.twig
-# - the base template templates/base.html.twig
+class HomepageController extends AbstractController
+{
+    /**
+     * @Route("/", name="homepage")
+     */
+    public function index(): Response
+    {
+        return $this->render('index.html.twig', [
+            'controller_name' => 'HomepageController',
+        ]);
+    }
+}
+EOF
 
+# Yay, we have static site!
+read -p 'Serving a static site! Hit enter to continue.'
 
+# =========================
+# Let's use a base template
+# =========================
+
+# Let's create a base template
+cat << 'EOF' > templates/base.html.twig
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello World</title>
+    <style>
+        body {background: #60a060}
+    </style>
+</head>
+<body>{% block content %}{% endblock %}</body>
+</html>
+EOF
+
+# And use it for the index page:
+cat << 'EOF' > templates/index.html.twig
+{% extends "base.html.twig" %}
+{% block content %}
+    <h1>Hello World</h1>
+{% endblock %}
+EOF
 
 # =======================
 # Let's add user accounts
