@@ -75,11 +75,6 @@ use App\Http\Controllers\Controller;
 
 class MainController extends Controller
 {
-    /**
-     * Show the index page.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
         return view('index');
@@ -95,24 +90,10 @@ cat << 'EOF' > ./routes/web.php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
 Route::get('/', [MainController::class, 'index']);
 EOF
 
-
-php artisan --version
-# php artisan serve
-
+# Yay, we have static site!
 read -p 'Serving a static site! Hit enter to continue.'
 
 # =========================
@@ -120,15 +101,13 @@ read -p 'Serving a static site! Hit enter to continue.'
 # =========================
 
 # Let's create a base template 
-# In the View directory 'resources/views'
-# create a sub-directory 'layouts' to store layouts / templates
 mkdir -p resources/views/layouts
-# create a layout 'app.blade.php' with placeeholder for title and content
+
 cat << 'EOF' > resources/views/layouts/app.blade.php
 <!DOCTYPE html>
 <html>
 <head>
-    <title>@yield('title')</title>
+    <title>Hello World</title>
     <style>
         body {background: #60a060}
     </style>
@@ -142,12 +121,8 @@ EOF
 # And use it for the index page:
 cat << 'EOF' > ./resources/views/index.blade.php
 @extends('layouts.app')
-
-@section('title', 'Hello World')
-
-
 @section('content')
-    <p>This is my body content.</p>
+    <h1>Hello World</h1>
 @endsection
 EOF
 
