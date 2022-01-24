@@ -12,10 +12,6 @@
 # fresh debian container:
 #
 # docker run -v $(pwd):/var/www --rm -it -p 80:80 debian:11-slim
-#
-# or start autmatically the script in your docker Debian image:
-#
-# docker run -v $(pwd):/var/www -w /var/www --rm -it -p 8080:80 debian:11-slim bash laravel.sh
 #  
 # You can copy+paste each command to see the application take
 # shape or copy the whole page and paste it in one go.
@@ -24,39 +20,23 @@
 # ======================
 # Let's configure Debian
 # ======================
-INSTALL_DEBIAN=1
 
-echo $INSTALL_DEBIAN
-
-if [ $INSTALL_DEBIAN == 1 ]; then
-
-    echo "Install debian packages"
-    # Do not show dialogs during the upgrade
-    export DEBIAN_FRONTEND=noninteractive
-    # Update the packages
-    apt update -y && apt upgrade -y
-    apt install -y unzip git php php-xml php-curl composer
-    php -v
-
-fi
-
-
-
+# Do not show dialogs during the upgrade
+export DEBIAN_FRONTEND=noninteractive
 # Update the packages
-# apt update -y && apt upgrade -y
+apt update -y && apt upgrade -y
 
-# ====================
+# =====================
 # Let's install Laravel
-# ====================
+# =====================
+
+apt install -y unzip git php php-xml php-curl composer
 
 composer global require laravel/installer
 export PATH="$PATH:$HOME/.composer/vendor/bin"
-# cd /var/www
+cd /var/www
 laravel new mysite
-if [ $INSTALL_DEBIAN == 1 ]; then
-    chown -R www-data:www-data mysite
-fi
-
+chown -R www-data:www-data mysite
 cd mysite
 
 # ====================
