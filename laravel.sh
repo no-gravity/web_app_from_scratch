@@ -31,7 +31,6 @@ apt update -y && apt upgrade -y
 # =====================
 
 apt install -y unzip git php php-xml php-curl composer
-
 composer global require laravel/installer
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 cd /var/www
@@ -55,12 +54,18 @@ ServerName mysite.local
 EOF
 service apache2 start
 
-# Set the view template file
+# Yay, we have a working Laravel instance!
+# You can see it at 127.0.0.1
+read -p 'Laravel is running! Hit enter to continue.'
+
+# ===================
+# Let's use templates
+# ===================
+
 cat << 'EOF' > ./resources/views/index.blade.php
 <h1>Hello World</h1>
 EOF
 
-# Set the Controller
 cat << 'EOF' > ./app/Http/Controllers/MainController.php
 <?php
 
