@@ -42,6 +42,7 @@ apt install -y apache2
 apt install -y libapache2-mod-wsgi-py3
 
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
+ServerName mysite.local
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
     WSGIScriptAlias / /var/www/mysite/mysite/wsgi.py
