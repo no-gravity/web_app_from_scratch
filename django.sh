@@ -1,4 +1,3 @@
-# ======================
 # From Debian to Web App
 # ======================
 
@@ -69,19 +68,18 @@ read -p 'Django is live at 127.0.0.1! Hit enter to continue.'
 cd mysite
 
 mkdir templates
-mkdir templates/mysite
 
-touch templates/mysite/index.html
-touch templates/mysite/base.html
+touch templates/index.html
+touch templates/base.html
 
-cat << 'EOF' > templates/mysite/index.html
+cat << 'EOF' > templates/index.html
 <h1>Hello World</h1>
 EOF
 
 cat << 'EOF' > views.py
 from django.shortcuts import render
 def index(request):
-    return render(request, 'mysite/index.html')
+    return render(request, 'index.html')
 EOF
 
 cat << 'EOF' > urls.py
@@ -109,7 +107,7 @@ read -p 'Serving a static site! Hit enter to continue.'
 # =========================
 
 # Let's create a base template 
-cat << 'EOF' > templates/mysite/base.html
+cat << 'EOF' > templates/base.html
 <!DOCTYPE html>
 <html>
 <head>
@@ -123,8 +121,8 @@ cat << 'EOF' > templates/mysite/base.html
 EOF
 
 # And use it for the index page:
-cat << 'EOF' > templates/mysite/index.html
-{% extends "mysite/base.html" %}
+cat << 'EOF' > templates/index.html
+{% extends "base.html" %}
 {% block content %}
     <h1>Hello World</h1>
 {% endblock %}
@@ -140,15 +138,14 @@ read -p 'The base template is live! Hit enter to continue.'
 # =======================
 cd ..
 
-# Create a new app called user for Auth
+# Create a new app called User for Auth
 django-admin startapp user
 
 cat << 'EOF' >> mysite/settings.py
 INSTALLED_APPS += ['user']
 EOF
 
-mkdir user/templates/
-mkdir user/templates/user
+mkdir mysite/templates/user
 touch user/forms.py
 
 # Apply Auth model migrations to db
@@ -218,13 +215,13 @@ urlpatterns = [
 EOF
 
 # Create Templates for Authorization
-touch user/templates/user/index.html
-touch user/templates/user/register.html
-touch user/templates/user/login.html
-touch user/templates/user/logout.html
+touch mysite/templates/user/index.html
+touch mysite/templates/user/register.html
+touch mysite/templates/user/login.html
+touch mysite/templates/user/logout.html
 
-cat << 'EOF' > user/templates/user/index.html
-{% extends 'mysite/base.html' %}
+cat << 'EOF' > mysite/templates/user/index.html
+{% extends 'base.html' %}
 
 {% block content %}
     <a href="{% url 'register' %}"><button>Register</button></a>
@@ -233,8 +230,8 @@ cat << 'EOF' > user/templates/user/index.html
 
 EOF
 
-cat << 'EOF' > user/templates/user/register.html
-{% extends 'mysite/base.html' %}
+cat << 'EOF' > mysite/templates/user/register.html
+{% extends 'base.html' %}
 
 {% block content %}
     <form method="POST">
@@ -250,8 +247,8 @@ cat << 'EOF' > user/templates/user/register.html
 
 EOF
 
-cat << 'EOF' > user/templates/user/login.html
-{% extends 'mysite/base.html' %}
+cat << 'EOF' > mysite/templates/user/login.html
+{% extends 'base.html' %}
 
 {% block  content %}
     <form method="POST">
@@ -260,22 +257,21 @@ cat << 'EOF' > user/templates/user/login.html
             <button type="submit">Log In</button>
     </form>
         <p>
-            Don\'t have an Account? <a href="{% url 'register' %}"><button>Register</button></a>
+            Don't have an Account? <a href="{% url 'register' %}"><button>Register</button></a>
         </p>
 {% endblock %}
 EOF
 
-cat << 'EOF' > user/templates/user/logout.html
-{% extends 'mysite/base.html' %}
+cat << 'EOF' > mysite/templates/user/logout.html
+{% extends 'base.html' %}
 
 {% block content %}
         <p>
-            Don\'t have an account?
+            Don't have an account?
             <a href="{% url 'register' %}"><button>Register</button></a>
         </p>
         <p>
-            Already have an Account?
-            <a href="{% url 'login' %}"><button>Login</button></a>
+            Already have an Account?<a href="{% url 'login' %}"><button>Login</button></a>
         </p>
 {% endblock %}
 
@@ -286,10 +282,9 @@ cat << 'EOF' >> mysite/settings.py
 LOGIN_REDIRECT_URL = 'index'
 EOF
 
-sed -i -e "s/\r//g" mysite/settings.py
 
-cat << 'EOF' > mysite/templates/mysite/index.html
-{% extends "mysite/base.html" %}
+cat << 'EOF' > mysite/templates/index.html
+{% extends "base.html" %}
 {% block content %}
     {% if user.is_authenticated %}
     <h1>Hello, {{ user.username }}!</h1>
