@@ -3,7 +3,8 @@
 # ======================
 
 # This page contains a list of terminal commands that
-# create a Flask web application with  templates
+# create a Flask web application with routing, templates
+# and user accounts.
 #
 # You can start from a fresh debian installation. Or with a
 # fresh debian container:
