@@ -286,7 +286,7 @@ cat << 'EOF' >> mysite/settings.py
 LOGIN_REDIRECT_URL = 'index'
 EOF
 
-sed -i "s/^M//" mysite/settings.py
+sed -i -e "s/\r//g" mysite/settings.py
 
 cat << 'EOF' > mysite/templates/mysite/index.html
 {% extends "mysite/base.html" %}
