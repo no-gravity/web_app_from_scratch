@@ -42,6 +42,7 @@ apt install -y apache2
 apt install -y libapache2-mod-wsgi-py3
 
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
+ServerName mysite.local
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
     WSGIScriptAlias / /var/www/mysite/mysite/wsgi.py
@@ -58,7 +59,7 @@ service apache2 start
 # Yay, we have a working Django instance!
 # Now 127.0.0.1 has the user page
 # And 127.0.0.1/admin/ has an admin page
-read -p 'Django is running! Hit enter to continue.'
+read -p 'Django is live at 127.0.0.1! Hit enter to continue.'
 
 # ===================
 # Let's use templates
@@ -301,3 +302,5 @@ cat << 'EOF' > mysite/templates/mysite/index.html
 {% endblock %}
 
 EOF
+
+read -p 'Auth configured at 127.0.0.1:8000/auth/ Hit enter to continue. '
