@@ -30,18 +30,17 @@ apt update -y && apt upgrade -y
 
 cd /var/www
 apt install -y python3-flask
-mkdir -p mysite
+mkdir mysite
 cd mysite
 
-mkdir -p flasky
-cd flasky
-
-mkdir -p logs
-mkdir -p static
+mkdir mysite
+mkdir logs
+mkdir static
 
 # ====================
 # Let's install Apache
 # ====================
+
 apt install -y apache2
 apt install -y libapache2-mod-wsgi-py3
 
@@ -55,7 +54,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return "Hello, World!"
+    return "Hello from Flask!"
 
 if __name__ == "__main__":
     app.run()
@@ -67,34 +66,27 @@ EOF
 cat << 'EOF' > wsgi.py
 #!/usr/bin/python
 import sys
-sys.path.insert(0,"/var/www/mysite/")
-from flasky.app import app as application
+sys.path.insert(0,"/var/www/")
+from mysite.app import app as application
 EOF
 
 # ==========================
 # Let's configure APACHE2
 # ==========================
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
+ServerName mysite.local
+WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
-    ErrorLog /var/www/mysite/flasky/logs/error.log
-    CustomLog /var/www/mysite/flasky/logs/access.log combined
-    WSGIDaemonProcess flasky user=www-data group=www-data threads=5
-    WSGIProcessGroup flasky
-    WSGIScriptAlias / /var/www/mysite/flasky/wsgi.py
-    Alias /static/ /var/www/mysite/flasky/static
+    WSGIScriptAlias / /var/www/mysite/wsgi.py
     <Directory /var/www/mysite/mysite>
-        Order allow,deny
-        Allow from all
-        Require all granted
+        <Files wsgi.py>
+            Require all granted
+        </Files>
     </Directory>
 </VirtualHost>
 EOF
 
-# move to mysite directory & change ownership
-cd ../../
-
-chown -R www-data:www-data mysite
-
+chown -R www-data:www-data .
 
 service apache2 start
 
@@ -102,15 +94,26 @@ service apache2 start
 # Now 127.0.0.1 has the user page
 read -p 'Flask is running'
 
-# ==========================================
-# Let's use templates to return an HTML page
-# ==========================================
-cd mysite/flasky
+# ===================
+# Let's use templates
+# ===================
 
 mkdir templates
 
 cat << 'EOF' > templates/index.html
-<h1>Hello Flasky</h1>
+<h1>Hello World</h1>
+EOF
+
+cat << 'EOF' > app.py
+from flask import Flask, render_template
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return render_template('index.html')
+
+if __name__ == "__main__":
+    app.run()
 EOF
 
 service apache2 restart
@@ -143,22 +146,6 @@ cat << 'EOF' > templates/index.html
     <h1>Hello World</h1>
 {% endblock %}
 EOF
-
-# =====================================
-# Let's modify app.py to return template
-# =====================================
-cat << 'EOF' > app.py
-from flask import Flask, render_template
-app = Flask(__name__)
-
-@app.route("/")
-def index():
-    return render_template('index.html')
-
-if __name__ == "__main__":
-    app.run()
-EOF
-
 
 service apache2 restart
 
