@@ -3,8 +3,7 @@
 # ======================
 
 # This page contains a list of terminal commands that
-# create a Django web application with routing, templates
-# and user accounts.
+# create a Flask web application with  templates
 #
 # You can start from a fresh debian installation. Or with a
 # fresh debian container:
