@@ -1,3 +1,4 @@
+# ======================
 # From Debian to Web App
 # ======================
 
@@ -149,8 +150,8 @@ mkdir mysite/templates/user
 touch user/forms.py
 
 # Apply Auth model migrations to db
-python manage.py makemigrations
-python manage.py migrate
+python3 manage.py makemigrations
+python3 manage.py migrate
 
 # Create a User Registration Form 
 # Extends the UserCreationForm
@@ -244,7 +245,6 @@ cat << 'EOF' > mysite/templates/user/register.html
         </p>
 {% endblock %}
 
-
 EOF
 
 cat << 'EOF' > mysite/templates/user/login.html
@@ -260,6 +260,7 @@ cat << 'EOF' > mysite/templates/user/login.html
             Don't have an Account? <a href="{% url 'register' %}"><button>Register</button></a>
         </p>
 {% endblock %}
+
 EOF
 
 cat << 'EOF' > mysite/templates/user/logout.html
@@ -298,4 +299,8 @@ cat << 'EOF' > mysite/templates/index.html
 
 EOF
 
+chown www-data:www-data .
+chown www-data:www-data db.sqlite3
+
+service apache2 restart
 read -p 'Auth configured at 127.0.0.1:8000/auth/ Hit enter to continue. '
