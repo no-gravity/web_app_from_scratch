@@ -68,9 +68,6 @@ cd mysite
 
 mkdir templates
 
-touch templates/index.html
-touch templates/base.html
-
 cat << 'EOF' > templates/index.html
 <h1>Hello World</h1>
 EOF
@@ -145,7 +142,6 @@ INSTALLED_APPS += ['user']
 EOF
 
 mkdir mysite/templates/user
-touch user/forms.py
 
 # Apply Auth model migrations to db
 python3 manage.py makemigrations
@@ -214,11 +210,6 @@ urlpatterns = [
 EOF
 
 # Create Templates for Authorization
-touch mysite/templates/user/index.html
-touch mysite/templates/user/register.html
-touch mysite/templates/user/login.html
-touch mysite/templates/user/logout.html
-
 cat << 'EOF' > mysite/templates/user/index.html
 {% extends 'base.html' %}
 
