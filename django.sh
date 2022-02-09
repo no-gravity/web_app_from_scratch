@@ -56,6 +56,9 @@ EOF
 
 service apache2 start
 
+# Yay, we have a working Django instance!
+# Now 127.0.0.1 has the user page
+# And 127.0.0.1/admin/ has an admin page
 read -p 'Django is live at 127.0.0.1! Hit enter to continue.'
 
 # ===================
@@ -66,6 +69,9 @@ read -p 'Django is live at 127.0.0.1! Hit enter to continue.'
 cd mysite
 
 mkdir templates
+
+touch templates/index.html
+touch templates/base.html
 
 cat << 'EOF' > templates/index.html
 <h1>Hello World</h1>
@@ -84,7 +90,7 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index),
+    path('', views.index, name='index'),
 ]
 EOF
 
@@ -131,5 +137,170 @@ read -p 'The base template is live! Hit enter to continue.'
 # =======================
 # Let's add user accounts
 # =======================
+cd ..
 
-# ... To be written ...
+# Create a new app called User for Auth
+django-admin startapp user
+
+cat << 'EOF' >> mysite/settings.py
+INSTALLED_APPS += ['user']
+EOF
+
+mkdir mysite/templates/user
+touch user/forms.py
+
+# Apply Auth model migrations to db
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+# Create a User Registration Form 
+# Extends the UserCreationForm
+cat << 'EOF' > user/forms.py
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model= User
+        fields = ['username', 'email', 'password1', 'password2']
+EOF
+
+# Create some basic views for registration
+cat << 'EOF' > user/views.py
+from django.shortcuts import render, redirect
+from .forms import UserRegisterForm
+
+def index(request):
+    return render(request, 'user/index.html')
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'user/register.html', {'form': form})
+
+EOF
+
+# Create the URL mappings of Auth
+cat << 'EOF' > user/urls.py
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from user import views as user_views
+
+urlpatterns = [
+    path('', user_views.index, name='auth'),
+    path('register/', user_views.register, name='register'),
+    path('login/', auth_views.LoginView.as_view(template_name='user/login.html'), name='login'),
+    path('logout/',auth_views.LogoutView.as_view(template_name='user/logout.html'), name='logout'),
+]
+EOF
+
+cat << 'EOF' > mysite/urls.py
+from django.contrib import admin
+from django.urls import path, include
+from . import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', views.index, name='index'),
+    path('auth/', include('user.urls')),
+]
+EOF
+
+# Create Templates for Authorization
+touch mysite/templates/user/index.html
+touch mysite/templates/user/register.html
+touch mysite/templates/user/login.html
+touch mysite/templates/user/logout.html
+
+cat << 'EOF' > mysite/templates/user/index.html
+{% extends 'base.html' %}
+
+{% block content %}
+    <a href="{% url 'register' %}"><button>Register</button></a>
+    <a href="{% url 'login' %}"><button>Login</button></a>
+{% endblock %}
+
+EOF
+
+cat << 'EOF' > mysite/templates/user/register.html
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+    </form>
+        <p>
+        Already have an Account? <a href="{% url 'login' %}"><button>Log In</button></a>
+        </p>
+{% endblock %}
+
+EOF
+
+cat << 'EOF' > mysite/templates/user/login.html
+{% extends 'base.html' %}
+
+{% block  content %}
+    <form method="POST">
+        {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Log In</button>
+    </form>
+        <p>
+            Don't have an Account? <a href="{% url 'register' %}"><button>Register</button></a>
+        </p>
+{% endblock %}
+
+EOF
+
+cat << 'EOF' > mysite/templates/user/logout.html
+{% extends 'base.html' %}
+
+{% block content %}
+        <p>
+            Don't have an account?
+            <a href="{% url 'register' %}"><button>Register</button></a>
+        </p>
+        <p>
+            Already have an Account?<a href="{% url 'login' %}"><button>Login</button></a>
+        </p>
+{% endblock %}
+
+EOF
+
+# Create a Login redirect URL route
+cat << 'EOF' >> mysite/settings.py
+LOGIN_REDIRECT_URL = 'index'
+EOF
+
+
+cat << 'EOF' > mysite/templates/index.html
+{% extends "base.html" %}
+{% block content %}
+    {% if user.is_authenticated %}
+    <h1>Hello, {{ user.username }}!</h1>
+    <h3>You are logged in as {{ user.username }} </h3>
+    <a href="{% url 'logout' %}"><button>Logout</button></a>
+    {% else %}
+    <h1>Hello, World!</h1>
+    <a href="{% url 'auth' %}"><button>Authorize</button></a>
+    {% endif %}
+{% endblock %}
+
+EOF
+
+chown www-data:www-data .
+chown www-data:www-data db.sqlite3
+
+service apache2 restart
+read -p 'Auth configured at 127.0.0.1:8000/auth/ Hit enter to continue. '
