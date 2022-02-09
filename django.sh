@@ -57,8 +57,6 @@ EOF
 service apache2 start
 
 # Yay, we have a working Django instance!
-# Now 127.0.0.1 has the user page
-# And 127.0.0.1/admin/ has an admin page
 read -p 'Django is live at 127.0.0.1! Hit enter to continue.'
 
 # ===================
