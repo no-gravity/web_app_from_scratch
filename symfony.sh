@@ -34,11 +34,10 @@ composer create-project symfony/website-skeleton mysite --no-interaction
 chown -R www-data:www-data mysite
 cd mysite
 
+# Ensure composer doesn't ask us questions about recipes and allow contrib recipes
+composer config extra.symfony --json '{"allow-contrib": true}'
 # apache-pack will write the public/.htaccess file that
 # routes all requests to public/index.php.
-# Unfortunately, this will ask a question and you will
-# have to manually type "y" and enter. I have not yet
-# found a nice way to automate this.
 composer require symfony/apache-pack
 
 # ====================
