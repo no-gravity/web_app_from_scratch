@@ -121,7 +121,7 @@ read -p 'Serving a static site! Hit enter to continue.'
 # Let's use a base template
 # =========================
 
-# Let's create a base template 
+# Let's create a base template
 cat << 'EOF' > templates/base.html
 <!DOCTYPE html>
 <html>
