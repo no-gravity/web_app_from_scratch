@@ -456,5 +456,3 @@ service apache2 restart
 
 # Yay, we have a working base template!
 read -p 'The user accounts feature is live! Hit enter to continue.'
-
-
