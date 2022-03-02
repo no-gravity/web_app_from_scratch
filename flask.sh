@@ -33,7 +33,6 @@ apt install -y python3-flask
 mkdir mysite
 cd mysite
 
-mkdir mysite
 mkdir logs
 mkdir static
 
@@ -51,9 +50,11 @@ apt install -y libapache2-mod-wsgi-py3
 cat << 'EOF' > app.py
 from flask import Flask
 app = Flask(__name__)
+
 @app.route("/")
 def index():
     return "Hello from Flask!"
+	
 if __name__ == "__main__":
     app.run()
 EOF
@@ -72,11 +73,13 @@ EOF
 # Let's configure APACHE2
 # ==========================
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
-ServerName mysite.local
+ServerName localhost
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
+    ErrorLog /var/www/mysite/logs/error.log
+    CustomLog /var/www/mysite/logs/access.log combined
     WSGIScriptAlias / /var/www/mysite/wsgi.py
-    <Directory /var/www/mysite/mysite>
+    <Directory /var/www/mysite>
         <Files wsgi.py>
             Require all granted
         </Files>
@@ -105,9 +108,11 @@ EOF
 cat << 'EOF' > app.py
 from flask import Flask, render_template
 app = Flask(__name__)
+
 @app.route("/")
 def index():
     return render_template('index.html')
+	
 if __name__ == "__main__":
     app.run()
 EOF
@@ -153,12 +158,11 @@ read -p 'The base template is live! Hit enter to continue.'
 # first we install the necessary dependencies 
 # ===========================================
 
-apt install -y python3-flask-login python3-flask-sqlalchemy python3-Flask-WTF
+apt install -y python3-flask-login python3-flask-sqlalchemy python3-flaskext.wtf
 
 # Let's create the forms to render for login & registration
 cat << 'EOF' > forms.py
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
-
 class UserRegisterForm(Form):
     username = StringField('Username', [validators.Length(min=1, max=100)])
     email = StringField('Email Address', [validators.Length(max=100)])
@@ -167,7 +171,6 @@ class UserRegisterForm(Form):
         validators.EqualTo('password2', message='Passwords must match')
     ])
     password2 = PasswordField('Repeat Password')
-
 class UserLoginForm(Form):
     username = StringField('Username', [validators.Length(min=1, max=100)])    
     password = PasswordField('Password', [
@@ -181,26 +184,23 @@ EOF
 cat << 'EOF' > models.py
 from flask_login import UserMixin
 from app import db
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
-EOF    
+EOF
 
 # Let's create the main blueprint
 cat << 'EOF' > main.py
 from flask import Blueprint, render_template
 from flask_login import current_user
 from app import db
-
 main = Blueprint('main', __name__)
-
 @main.route('/')
 def index():
     return render_template('index.html')
-EOF   
+EOF
 
 # Let's create the auth blueprint
 cat << 'EOF' > auth.py
@@ -211,9 +211,7 @@ from sqlalchemy import or_
 from forms import UserRegisterForm, UserLoginForm
 from models import User
 from app import db
-
 auth = Blueprint('auth', __name__)
-
 @auth.route('/login', methods=['GET','POST'])
 def login():
     form = UserLoginForm(request.form)
@@ -222,17 +220,14 @@ def login():
     else:
         username = form.username.data
         password = form.password.data        
-
         user = User.query.filter_by(username=username).first()
         
         if not user or not check_password_hash(user.password, password):
             flash('Please check your login details and try again.')
             return render_template('login.html', form=form)
-
     
         login_user(user)
         return render_template('index.html', user=user)
-
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = UserRegisterForm(request.form)
@@ -242,9 +237,7 @@ def register():
             email=form.email.data,
             password=generate_password_hash(form.password.data, method='sha256')
             )    
-
         user = User.query.filter(or_(User.username==form.username.data, User.email==form.email.data)).first() 
-
         if user:
             flash('Username/Email taken, try with different username.')
             return render_template('register.html', form=form)
@@ -255,13 +248,10 @@ def register():
         return redirect(url_for('auth.login'))
     else:
         return render_template('register.html', form=form)
-
-
 @auth.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
-
 EOF
 
 # ==================================================================================
@@ -274,44 +264,36 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
-
-
 def create_app():
     app = Flask(__name__)
-
+    
+    app.config['SECRET_KEY'] = os.environ.get('SECRET','secret-key-goes-here')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////var/www/mysite/flask.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.init_app(app)
+	
     @app.before_first_request
     def create_tables():
+        print("Creatingg DB")
         db.create_all()
-
-
-    app.config['SECRET_KEY'] = os.environ.get('SECRET','secret-key-goes-here')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    db.init_app(app)
+		
     
     login_manager = LoginManager()
-    # login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
-
-    from forms import User
-
+    from models import User
     @login_manager.user_loader
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return User.query.get(int(user_id))
-
     # blueprint for auth routes in our app
     from auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
-
     # blueprint for non-auth parts of app
     from main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
     return app
 EOF
 
@@ -345,7 +327,6 @@ cat << 'EOF' > templates/index.html
 <h1>Hello, {{ user.username }}!</h1>
 <h3>You are logged in as {{ user.username }} </h3>
 <a href="{{ url_for('auth.logout') }}"><button>Logout</button></a>
-
 {% endif %}
 {% endblock %}
 EOF
@@ -385,7 +366,6 @@ cat << 'EOF' > templates/index.html
 <h1>Hello, {{ user.username }}!</h1>
 <h3>You are logged in as {{ user.username }} </h3>
 <a href="{{ url_for('auth.logout') }}"><button>Logout</button></a>
-
 {% endif %}
 {% endblock %}
 EOF
@@ -422,6 +402,12 @@ cat << 'EOF' > templates/register.html
 {% endblock %}
 EOF
 
+cat << 'EOF' > db_init.py
+from app import create_app, db
+import models
+db.create_all(app=create_app())
+EOF
+
 
 # ==========================
 # Let's amend our wsgi file
@@ -430,7 +416,7 @@ cat << 'EOF' > wsgi.py
 #!/usr/bin/python
 import sys
 sys.path.insert(0,"/var/www/")
-from mysite import create_app
+from mysite.app import create_app
 application = create_app()
 EOF
 
@@ -438,17 +424,24 @@ EOF
 # Let's configure APACHE2
 # ==========================
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
-ServerName mysite.local
+ServerName localhost
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
+    ErrorLog /var/www/mysite/logs/error.log
+    CustomLog /var/www/mysite/logs/access.log combined
     WSGIScriptAlias / /var/www/mysite/wsgi.py
-    <Directory /var/www/mysite/mysite>
+    <Directory /var/www/mysite>
         <Files wsgi.py>
             Require all granted
         </Files>
     </Directory>
 </VirtualHost>
 EOF
+
+export FLASK_APP=app.py
+
+# initialize the database
+python3 db_init.py
 
 chown -R www-data:www-data .
 
