@@ -33,7 +33,6 @@ apt install -y python3-flask
 mkdir mysite
 cd mysite
 
-mkdir mysite
 mkdir logs
 mkdir static
 
@@ -78,7 +77,7 @@ ServerName mysite.local
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
     WSGIScriptAlias / /var/www/mysite/wsgi.py
-    <Directory /var/www/mysite/mysite>
+    <Directory /var/www/mysite>
         <Files wsgi.py>
             Require all granted
         </Files>
