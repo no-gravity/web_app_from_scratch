@@ -239,8 +239,7 @@ def register():
         if user:
             flash('Username/Email taken, try with different username.')
             return render_template('register.html', form=form)
-        
-        
+                
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('auth.login'))
@@ -276,8 +275,7 @@ def create_app():
     def create_tables():
         print("Creatingg DB")
         db.create_all()
-		
-    
+		    
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
