@@ -50,6 +50,7 @@ apt install -y libapache2-mod-wsgi-py3
 cat << 'EOF' > app.py
 from flask import Flask
 app = Flask(__name__)
+
 @app.route("/")
 def index():
     return "Hello from Flask!"
@@ -105,6 +106,7 @@ EOF
 cat << 'EOF' > app.py
 from flask import Flask, render_template
 app = Flask(__name__)
+
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -414,22 +416,6 @@ import sys
 sys.path.insert(0,"/var/www/")
 from mysite.app import create_app
 application = create_app()
-EOF
-
-# ==========================
-# Let's configure APACHE2
-# ==========================
-cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
-ServerName mysite.local
-WSGIPythonPath /var/www/mysite
-<VirtualHost *:80>
-    WSGIScriptAlias / /var/www/mysite/wsgi.py
-    <Directory /var/www/mysite>
-        <Files wsgi.py>
-            Require all granted
-        </Files>
-    </Directory>
-</VirtualHost>
 EOF
 
 export FLASK_APP=app.py
