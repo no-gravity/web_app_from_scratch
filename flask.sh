@@ -50,7 +50,6 @@ apt install -y libapache2-mod-wsgi-py3
 cat << 'EOF' > app.py
 from flask import Flask
 app = Flask(__name__)
-
 @app.route("/")
 def index():
     return "Hello from Flask!"
@@ -106,7 +105,6 @@ EOF
 cat << 'EOF' > app.py
 from flask import Flask, render_template
 app = Flask(__name__)
-
 @app.route("/")
 def index():
     return render_template('index.html')
