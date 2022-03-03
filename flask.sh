@@ -73,11 +73,9 @@ EOF
 # Let's configure APACHE2
 # ==========================
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
-ServerName localhost
+ServerName mysite.local
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
-    ErrorLog /var/www/mysite/logs/error.log
-    CustomLog /var/www/mysite/logs/access.log combined
     WSGIScriptAlias / /var/www/mysite/wsgi.py
     <Directory /var/www/mysite>
         <Files wsgi.py>
@@ -424,11 +422,9 @@ EOF
 # Let's configure APACHE2
 # ==========================
 cat << 'EOF' > /etc/apache2/sites-enabled/000-default.conf
-ServerName localhost
+ServerName mysite.local
 WSGIPythonPath /var/www/mysite
 <VirtualHost *:80>
-    ErrorLog /var/www/mysite/logs/error.log
-    CustomLog /var/www/mysite/logs/access.log combined
     WSGIScriptAlias / /var/www/mysite/wsgi.py
     <Directory /var/www/mysite>
         <Files wsgi.py>
