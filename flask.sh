@@ -10,7 +10,7 @@
 # fresh debian container:
 #
 # docker run -v $(pwd):/var/www --rm -it -p 80:80 debian:11-slim
-#  
+#
 # You can copy+paste each command to see the application take
 # shape or copy the whole page and paste it in one go.
 # You can also download it here: https://...
@@ -124,7 +124,7 @@ read -p 'Serving a static site! Hit enter to continue.'
 # Let's use a base template
 # =========================
 
-# Let's create a base template 
+# Let's create a base template
 cat << 'EOF' > templates/base.html
 <!DOCTYPE html>
 <html>
@@ -153,7 +153,7 @@ read -p 'The base template is live! Hit enter to continue.'
 
 # ===========================================
 # Let's add user accounts
-# first we install the necessary dependencies 
+# first we install the necessary dependencies
 # ===========================================
 
 apt install -y python3-flask-login python3-flask-sqlalchemy python3-flaskext.wtf
@@ -170,12 +170,11 @@ class UserRegisterForm(Form):
     ])
     password2 = PasswordField('Repeat Password')
 class UserLoginForm(Form):
-    username = StringField('Username', [validators.Length(min=1, max=100)])    
+    username = StringField('Username', [validators.Length(min=1, max=100)])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('password2', message='Passwords must match')
     ])
-    
 EOF
 
 # Let's create the user model
@@ -183,7 +182,7 @@ cat << 'EOF' > models.py
 from flask_login import UserMixin
 from app import db
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True) 
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
@@ -217,13 +216,13 @@ def login():
         return render_template('login.html', form=form)
     else:
         username = form.username.data
-        password = form.password.data        
+        password = form.password.data
         user = User.query.filter_by(username=username).first()
-        
+
         if not user or not check_password_hash(user.password, password):
             flash('Please check your login details and try again.')
             return render_template('login.html', form=form)
-    
+
         login_user(user)
         return render_template('index.html', user=user)
 @auth.route('/register', methods=['GET', 'POST'])
@@ -231,15 +230,15 @@ def register():
     form = UserRegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         new_user = User(
-            username=form.username.data, 
+            username=form.username.data,
             email=form.email.data,
             password=generate_password_hash(form.password.data, method='sha256')
-            )    
-        user = User.query.filter(or_(User.username==form.username.data, User.email==form.email.data)).first() 
+            )
+        user = User.query.filter(or_(User.username==form.username.data, User.email==form.email.data)).first()
         if user:
             flash('Username/Email taken, try with different username.')
             return render_template('register.html', form=form)
-                
+
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('auth.login'))
@@ -265,17 +264,17 @@ from flask_login import LoginManager
 db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
-    
+
     app.config['SECRET_KEY'] = os.environ.get('SECRET','secret-key-goes-here')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////var/www/mysite/flask.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-	
+
     @app.before_first_request
     def create_tables():
         print("Creatingg DB")
         db.create_all()
-		    
+
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
@@ -296,7 +295,7 @@ EOF
 # Yay, we have completed the backend bit!
 read -p 'Backend files completed. Now lets add HTML templates'
 
-# Let's create a base template 
+# Let's create a base template
 cat << 'EOF' > templates/base.html
 <!DOCTYPE html>
 <html>
@@ -403,7 +402,6 @@ from app import create_app, db
 import models
 db.create_all(app=create_app())
 EOF
-
 
 # ==========================
 # Let's amend our wsgi file
