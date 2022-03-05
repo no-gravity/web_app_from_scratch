@@ -90,8 +90,8 @@ chown -R www-data:www-data .
 service apache2 start
 
 # A Hello, World! Flask app is now running
-# Now 127.0.0.1 has the user page
-read -p 'Flask is running'
+# You can see it on 127.0.0.1
+read -p 'Flask is running! Hit enter to continue.'
 
 # ===================
 # Let's use templates
@@ -292,9 +292,6 @@ def create_app():
     return app
 EOF
 
-# Yay, we have completed the backend bit!
-read -p 'Backend files completed. Now lets add HTML templates'
-
 # Let's create a base template
 cat << 'EOF' > templates/base.html
 <!DOCTYPE html>
@@ -424,4 +421,4 @@ chown -R www-data:www-data .
 service apache2 restart
 
 # Yay, we have a working base template!
-read -p 'The user accounts feature is live! Hit enter to continue.'
+read -p 'User accounts are live! Hit enter to continue.'
