@@ -131,6 +131,7 @@ read -p 'The base template is live! Hit enter to continue.'
 # =======================
 # Let's add user accounts
 # =======================
+
 cd ..
 
 # Create a new app called User for Auth
@@ -221,7 +222,6 @@ EOF
 
 cat << 'EOF' > mysite/templates/user/register.html
 {% extends 'base.html' %}
-
 {% block content %}
     <form method="POST">
         {% csrf_token %}
@@ -232,12 +232,10 @@ cat << 'EOF' > mysite/templates/user/register.html
         Already have an Account? <a href="{% url 'login' %}"><button>Log In</button></a>
         </p>
 {% endblock %}
-
 EOF
 
 cat << 'EOF' > mysite/templates/user/login.html
 {% extends 'base.html' %}
-
 {% block  content %}
     <form method="POST">
         {% csrf_token %}
@@ -248,12 +246,10 @@ cat << 'EOF' > mysite/templates/user/login.html
             Don't have an Account? <a href="{% url 'register' %}"><button>Register</button></a>
         </p>
 {% endblock %}
-
 EOF
 
 cat << 'EOF' > mysite/templates/user/logout.html
 {% extends 'base.html' %}
-
 {% block content %}
         <p>
             Don't have an account?
@@ -263,14 +259,12 @@ cat << 'EOF' > mysite/templates/user/logout.html
             Already have an Account?<a href="{% url 'login' %}"><button>Login</button></a>
         </p>
 {% endblock %}
-
 EOF
 
 # Create a Login redirect URL route
 cat << 'EOF' >> mysite/settings.py
 LOGIN_REDIRECT_URL = 'index'
 EOF
-
 
 cat << 'EOF' > mysite/templates/index.html
 {% extends "base.html" %}
@@ -284,11 +278,12 @@ cat << 'EOF' > mysite/templates/index.html
     <a href="{% url 'auth' %}"><button>Authorize</button></a>
     {% endif %}
 {% endblock %}
-
 EOF
 
 chown www-data:www-data .
 chown www-data:www-data db.sqlite3
 
 service apache2 restart
-read -p 'Auth configured at 127.0.0.1:8000/auth/ Hit enter to continue. '
+
+# Yay, we have user accounts!
+read -p 'User accounts are live! Hit enter to continue.'
