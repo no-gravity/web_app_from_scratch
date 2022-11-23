@@ -10,7 +10,7 @@
 # fresh debian container:
 #
 # docker run -v $(pwd):/var/www --rm -it -p 80:80 debian:11-slim
-#  
+#
 # You can copy+paste each command to see the application take
 # shape or copy the whole page and paste it in one go.
 
@@ -101,7 +101,7 @@ read -p 'Serving a static site! Hit enter to continue.'
 # Let's use a base template
 # =========================
 
-# Let's create a base template 
+# Let's create a base template
 cat << 'EOF' > templates/base.html
 <!DOCTYPE html>
 <html>
@@ -146,7 +146,7 @@ mkdir mysite/templates/user
 python3 manage.py makemigrations
 python3 manage.py migrate
 
-# Create a User Registration Form 
+# Create a User Registration Form
 # Extends the UserCreationForm
 cat << 'EOF' > user/forms.py
 from django import forms
