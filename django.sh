@@ -13,7 +13,6 @@
 #  
 # You can copy+paste each command to see the application take
 # shape or copy the whole page and paste it in one go.
-# You can also download it here: https://...
 
 # ======================
 # Let's configure Debian
